@@ -1,0 +1,66 @@
+
+<html>
+    <head>
+        <title>API Activity</title>
+    </head>
+    <p>
+        Members:
+        Ocuaman, James Andrew
+        Ronatay, Luis Gabriel
+        Lunaspe, Paul Vincent
+        Briones, Peter Christian
+    </p>
+
+    <body>
+        
+
+            <h2>Euro currency exchange</h2>
+            <select name="currency" id="selectCurrency">
+                <option>choose a currency below: </option>
+            </select>
+            <input type="number" name="inputNum" id="inputNum" placeholder="Amount to be converted"> 
+            <input type="text" name="convertedCurrency" id="convertedCurrency" placeholder="converted currency">
+            <button type="submit" onclick="convertCurrency()"> Converted</button>
+            
+            <script>
+                fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json").then(response => response.json())
+                .then(data =>{
+                    const selectCurrency = document.getElementById("selectCurrency");
+
+                    for(const currencyCode in data){
+                        if(data.hasOwnProperty(currencyCode)){
+                            const option = document.createElement("option");
+                            option.value = currencyCode;
+                            option.text = data[currencyCode];
+                            selectCurrency.appendChild(option);
+                        }
+                    }
+
+                    selectCurrency.addEventListener('change', function(){
+                        selectedCurrencyToConvert = this.value
+                        console.log("You have selected this currency", 
+                        selectedCurrencyToConvert)
+                    })
+                    console.log(data);
+                    })
+                    
+                    function convertCurrency(){
+                    fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/eur.json").then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        const rates = data.eur;
+                        if(rates [selectedCurrencyToConvert]){
+                            const exchangeRate = rates[selectedCurrencyToConvert];
+
+                            const inputAmount = document.getElementById("inputNum").value;
+                            const convertedAmount = inputAmount * exchangeRate;
+
+                            console.log("convertedAmount: ", convertedAmount)
+                            document.getElementById("convertedCurrency").value = convertedAmount.toFixed(4);
+                        }
+                    })
+                    }
+            </script>
+    </body>
+</html>

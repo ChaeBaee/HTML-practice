@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harry Potter Gallery</title>
+</head>
+<body>
+  <h1>Harry Potter Gallery</h1>
+
+  <div>
+    <select id="category">
+      <option value="characters">Characters</option>
+      <option value="books">Books</option>
+      <option value="houses">Houses</option>
+      <option value="spells">Spells</option>
+    </select>
+
+    <select id="language">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+      <option value="it">Italiano</option>
+      <option value="pt">Português</option>
+      <option value="uk">Українська</option>
+    </select>
+
+    <button id="load-btn" onclick="fetchData()">Load Data</button>
+  </div>
+
+
+
+<div id="gallery"></div>
+
+<script>
+async function fetchData() {
+  const gallery = document.getElementById("gallery");
+  const loadBtn = document.getElementById("load-btn");
+  const category = document.getElementById("category").value;
+  const language = document.getElementById("language").value;
+
+  loadBtn.disabled = true;
+  loadBtn.textContent = "Loading...";
+  gallery.innerHTML = "";
+
+  try {
+    const response = await fetch(`https://potterapi-fedeperin.vercel.app/${language}/${category}?max=9`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const data = await response.json();
+
+    data.forEach(item => {
+      const card = document.createElement("div");
+
+      const img = document.createElement("img");
+      const info = document.createElement("div");
+      const title = document.createElement("h3");
+      const desc = document.createElement("p");
+
+      if (category === "books") {
+        img.src = item.cover || "";
+        title.textContent = item.title || "No Title";
+        desc.textContent = `Release: ${item.releaseDate || "Unknown"}\nPages: ${item.pages || "Unknown"}\n${item.description ? item.description.substring(0,150)+"..." : "No description"}`;
+      } else if (category === "characters") {
+        img.src = item.image || "";
+        title.textContent = item.fullName || "No Name";
+        desc.textContent = `Nickname: ${item.nickname || "N/A"}\nHouse: ${item.hogwartsHouse || "Unknown"}\nPlayed by: ${item.interpretedBy || "Unknown"}\nChildren: ${item.children ? item.children.join(", ") : "None"}`;
+      } else if (category === "houses") {
+        img.src = ""; // no image for houses, can use emoji or colors later
+        title.textContent = item.house || "No Name";
+        desc.textContent = `Founder: ${item.founder || "Unknown"}\nAnimal: ${item.animal || "Unknown"}\nColors: ${item.colors ? item.colors.join(", ") : "Unknown"}`;
+      } else if (category === "spells") {
+        img.src = ""; // no image for spells
+        title.textContent = item.spell || "No Name";
+        desc.textContent = `Effect: ${item.use || "Unknown"}`;
+      }
+
+      info.appendChild(title);
+      info.appendChild(desc);
+      card.appendChild(img);
+      card.appendChild(info);
+      gallery.appendChild(card);
+    });
+
+  } catch(err) {
+    gallery.innerHTML = `<p>Error loading data: ${err.message}</p>`;
+  } finally {
+    loadBtn.disabled = false;
+    loadBtn.textContent = "Load Data";
+  }
+}
+</script>
+
+</body>
+</html>

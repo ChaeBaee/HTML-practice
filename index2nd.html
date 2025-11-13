@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Gallery</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(45deg, #ff6b9d, #c44569, #f8b500);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 8px rgba(255, 107, 157, 0.3);
+    }
+
+    .members {
+      font-size: 1rem;
+      color: #cbd5e1;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff6b9d, #c44569);
+      border: none;
+      padding: 12px 32px;
+      border-radius: 25px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 3rem;
+      box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 107, 157, 0.5);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading {
+      display: none;
+      margin: 2rem 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 107, 157, 0.3);
+      border-top: 3px solid #ff6b9d;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .anime-card {
+      background: rgba(30, 30, 60, 0.8);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: 1px solid rgba(255, 107, 157, 0.2);
+      position: relative;
+    }
+
+    .anime-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .anime-card img {
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .anime-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .anime-info {
+      padding: 1.5rem;
+      background: rgba(248, 250, 252, 0.9);
+      backdrop-filter: blur(5px);
+    }
+
+    .anime-info h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .anime-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: left;
+    }
+
+    .anime-card:hover .anime-overlay {
+      opacity: 1;
+    }
+
+    .anime-overlay p {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      overflow-y: auto;
+      max-height: 100%;
+    }
+
+    .error-message {
+      background: rgba(220, 38, 38, 0.1);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem auto;
+      max-width: 500px;
+      text-align: center;
+    }
+
+    .error-message h3 {
+      color: #fca5a5;
+      margin-bottom: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+      
+      .members {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      #gallery {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .anime-card img {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Anime Gallery</h1>
+    <p class="members">
+      Members: <br>
+      Ocuaman, James Andrew <br>
+      Ronatay, Luis Gabriel <br>
+      Lunaspe, Paul Vincent <br>
+      Briones, Peter Christian
+    </p>
+
+    <button id="load-btn" onclick="fetchAnime()">Load Anime</button>
+    
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+    </div>
+    
+    <div id="gallery"></div>
+  </div>
+
+  <script>
+    const url = 'https://anime-db.p.rapidapi.com/anime?page=1&size=9&search=Fullmetal&genres=Fantasy%2CDrama&sortBy=ranking&sortOrder=asc';
+    const options = {
+      method: 'GET',
+      headers: {
+        'x-rapidapi-key': '7c5426237fmsh8fc68ea8a8755e3p198ac8jsnce70ea2b4ff9',
+        'x-rapidapi-host': 'anime-db.p.rapidapi.com'
+      }
+    };
+
+    async function fetchAnime() {
+      const gallery = document.getElementById("gallery");
+      const loading = document.getElementById("loading");
+      const loadBtn = document.getElementById("load-btn");
+      
+      loading.style.display = "block";
+      loadBtn.disabled = true;
+      loadBtn.textContent = "Loading...";
+      gallery.innerHTML = "";
+
+      try {
+        const response = await fetch(url, options);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+
+        if (!result.data || result.data.length === 0) {
+          throw new Error("No anime data available");
+        }
+
+        gallery.innerHTML = "";
+        
+        result.data.forEach(anime => {
+          const card = document.createElement("div");
+          card.classList.add("anime-card");
+
+          const img = document.createElement("img");
+          img.src = anime.image;
+          img.alt = anime.title;
+          img.onerror = function() {
+            this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='350' viewBox='0 0 280 350'%3E%3Crect width='280' height='350' fill='%23374151'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%239ca3af' font-family='Arial' font-size='14'%3EImage not available%3C/text%3E%3C/svg%3E";
+          };
+
+          const info = document.createElement("div");
+          info.classList.add("anime-info");
+
+          const title = document.createElement("h3");
+          title.textContent = anime.title;
+          info.appendChild(title);
+
+          const overlay = document.createElement("div");
+          overlay.classList.add("anime-overlay");
+
+          const desc = document.createElement("p");
+          desc.textContent = anime.synopsis 
+            ? anime.synopsis.length > 200 
+              ? anime.synopsis.substring(0, 200) + "..."
+              : anime.synopsis
+            : "No description available.";
+          overlay.appendChild(desc);
+
+          card.appendChild(img);
+          card.appendChild(info);
+          card.appendChild(overlay);
+          gallery.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error("Error fetching anime:", err);
+        gallery.innerHTML = `
+          <div class="error-message">
+            <h3>Something went wrong</h3>
+            <p>Failed to load anime data. Please try again later.</p>
+            <small>Error: ${err.message}</small>
+          </div>
+        `;
+      } finally {
+        loading.style.display = "none";
+        loadBtn.disabled = false;
+        loadBtn.textContent = "Load More Anime";
+      }
+    }
+  </script>
+</body>
+</html>

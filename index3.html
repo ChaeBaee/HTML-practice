@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Document</title>
+        </head>
+<body>
+    <h1>anime gallery</h1>
+    <button id="loadBtn" onclick="fetchAnime()">Load Anime</button>
+    <div id="gallery"></div>
+
+    <script>
+        const url = 'https://anime-db.p.rapidapi.com/anime?page=1&size=10&search=Fullmetal&genres=Fantasy%2CDrama&sortBy=ranking&sortOrder=asc';
+        const options = {
+        method: 'GET',
+        headers: {
+            'x-rapidapi-key': '7607a478bbmsh63143f934a1dd42p10b1f7jsn6a8c0af6cf07',
+            'x-rapidapi-host': 'anime-db.p.rapidapi.com'
+        }
+        };
+        async function fetchAnime() {
+                
+                const response = await fetch(url, options);
+                const result = await response.json();
+                console.log(result);
+                
+                const gallery = document.getElementById('gallery');
+                gallery.innerHTML = '';
+                result.data.forEach(anime => {
+                    const card = document.createElement('div');
+                    card.classList.add('anime-card');
+
+                    const img = document.createElement('img');
+                    img.src = anime.image;
+                    const title = document.createElement('h3');
+                    title.textContent = anime.title;
+
+                    card.appendChild(img);
+                    card.appendChild(title);
+
+                    gallery.appendChild(card);
+                    
+                
+                })
+            }
+    </script>
+
+</body>
+
+</html>
